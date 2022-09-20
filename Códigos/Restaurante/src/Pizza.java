@@ -23,105 +23,50 @@
  */
 
 /** Classe pizza simples para demonstração de fundamentos de POO e teste unitário */
-public class Pizza{
-    //#region Atributos
+public class Pizza extends Comida{
+
     //constantes
     private static final int MAX_INGRED = 8;
     private static final double VALOR_BASICO = 25.0;
-    private static final double VALOR_ADICIONAL = 4.0;
+    private static final double PRECO_INGRED = 2.0;
+    private static final double VALOR_BORDA = 7.5;
     private static final String DESCRICAO = "Pizza simples";
     
-    private boolean vendaFechada;
-    private int qtAdicionais;
-    //#endregion
-
-    //#region Métodos privados (validação interna)
-
-    /**
-     * Inicializador privado. Valida a quantidade de adicionais e coloca 0 se inválido.
-     * @param quantosAdicionais Quantidade de adicionais na criação da pizza. 
-     */
-    private void init(int quantosAdicionais){
-        if(this.validarAdicionais(quantosAdicionais))
-            this.qtAdicionais = quantosAdicionais;
-        else 
-            this.qtAdicionais = 0;
-        this.vendaFechada = false;
-    }
-
-    /**
-     * Validação do máximo de adicionais. Protegido para venda fechada e valores negativos. Não adiciona os adicionais, apenas valida a quantidade.
-     * @param quantos Quantidade de adicionais para validar.
-     * @return TRUE se válido, FALSE se inválido.
-     */
-    private boolean validarAdicionais(int quantos){
-        if (!this.vendaFechada && quantos>0 && quantos<=MAX_INGRED)
-            return true;
-        else
-            return false;
-    }
-    //#endregion
-
-    //#region Construtores
+    private boolean bordaRecheada;
     
+   
+
+    private void init(boolean bordaRecheada){
+        this.incluirBorda(bordaRecheada);
+    }
+       
     /**
      * Construtor simples: cria uma pizza sem adicionais.
      */
     public Pizza(){
-        this.init(0);
+        super(MAX_INGRED, VALOR_BASICO, DESCRICAO);
+        init(false);
     }
 
-    /**
-     * Construtor para pizza com quantidade inicial de adicionais. O valor máximo é 8 adicionais.
-     * @param quantosAdicionais A quantidade de adicionais no início do pedido. Valor volta para 0 se for inválido. 
-     */
-    public Pizza(int quantosAdicionais){
-        this.init(quantosAdicionais);
+    public Pizza(boolean bordaRecheada){
+        super(MAX_INGRED, VALOR_BASICO, DESCRICAO);
+        init(bordaRecheada);
     }
-    //#endregion
-
-    //#region Métodos de negócio
-    
-    /**
-     * Adiciona ingredientes extras na pizza, além dos já incluídos. Método validado para valores negativos ou acima do limite (8 adicionais). Caso inválido, ignora a operação.
-     * @param quantos Quantos ingredientes a adicionar aos que já existem na pizza. 
-     * @return TRUE se operação com sucesso, FALSE caso contrário.
-     */
-    public boolean addIngredientes(int quantos){
-        if(validarAdicionais(this.qtAdicionais+quantos)){
-            this.qtAdicionais+=quantos;
-            return true;
+    @Override
+    protected double valorAdicionais() {
+        double valor=0d;
+        for (int i = 0; i < this.qtIngredientes; i++) {
+            valor+= this.ingredientes[i].preco()*PRECO_INGRED;
         }
-        else
-            return false;
+        if(this.bordaRecheada)
+            valor+= VALOR_BORDA;
+        return valor;
     }
 
-    /**
-     * Fecha a venda da pizza. Depois deste método, não se pode mais adicionar ingredientes. Sempre retorna a nota atual de venda.
-     * @return A nota simplificada de venda (string formatada).
-     */
-    public String fecharVenda(){
-        this.vendaFechada = true;
-        return gerarNota();
+    public boolean incluirBorda(boolean inclusao){
+        this.bordaRecheada = inclusao;
+        return this.bordaRecheada;
     }
     
-    /**
-     * Cria a nota de venda. Em caso de pedido aberto, retorna somente o aviso. A nota tem o formato simplificado de
-     * "Pizza simples com XX adicionais. Preço: R$XX.XX".
-     * @return A nota simplificada ou mensagem de pedido em aberto (string em qualquer caso).
-     */
-    public String gerarNota(){
-        return DESCRICAO+" com "+this.qtAdicionais+
-                " adicionais. Preço: R$"+String.format("%.2f", this.calcPreco())+".";
-    }
-
-    /**
-     * Calcula o preco a ser cobrado pela pizza (valor básico + valor dos adicionais). Perceba que, se considerado adequado,
-     * o método para o preço dos adicionais poderia ser um método à parte - talvez privado.
-     * @return Valor atual a ser cobrado pela pizza.
-     */
-    public double calcPreco(){
-        return VALOR_BASICO + this.qtAdicionais*VALOR_ADICIONAL;
-    }
-    //#endregion
+   
 }
