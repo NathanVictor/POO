@@ -19,13 +19,13 @@ public class PedidoTest {
   
     @Test
     public void testarPedidoCriadoVazio(){
-            assertEquals(0.0, pedido.calcularValor(), 0.01);
+            assertEquals(0.0, pedido.calcularPreco(), 0.01);
     }
 
     @Test
     public void testarInclusaoDePizza(){
             pedido.addPizza(pizza);
-            assertEquals(25.0, pedido.calcularValor(), 0.01);
+            assertEquals(25.0, pedido.calcularPreco(), 0.01);
     }
 
 
@@ -35,36 +35,36 @@ public class PedidoTest {
         for(int i=0; i<15; i++){
             pedido.addPizza(pizza);
         }
-        assertEquals(250.0, pedido.calcularValor(),0.01);
+        assertEquals(250.0, pedido.calcularPreco(),0.01);
     }
 
     @Test
     public void recusarPedidoVazio(){
-        pedido.fecharPedido();
+        pedido.encerrar();
         assertTrue(pedido.addPizza(pizza));
     }
 
     @Test
     public void recusarMudancaEmPedidoEncerrado(){
         pedido.addPizza(pizza);
-        pedido.fecharPedido();
+        pedido.encerrar();
         assertFalse(pedido.addPizza(pizza));
     }
     
     @Test
     public void calcularPrecoFinal(){
-        Pizza pizza1 = new Pizza(1);
+        Pizza pizza1 = new Pizza();
         pedido.addPizza(pizza);
         pedido.addPizza(pizza1);
-        assertEquals(54.0, pedido.calcularValor(), 0.01);
+        assertEquals(50.0, pedido.calcularPreco(), 0.01);
     }
 
     @Test
     public void relatorioComDetalhesDasPizzas(){
         pedido.addPizza(pizza);
-        pedido.fecharPedido();   
+        pedido.encerrar();   
 
-        String relatorio = pedido.relatorio();
+        String relatorio = pedido.toString();
       
         
         assertTrue(relatorio.contains("Pizza"));

@@ -22,6 +22,8 @@
  * SOFTWARE.
  */
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -29,7 +31,7 @@ import java.util.Scanner;
  * App-demo para o restaurante. Versão 2: pedidos com pizzas.
  */
 public class App {
-
+    static Scanner teclado = new Scanner(System.in);
     // #region utilidades
     /**
      * "Limpa" a tela (códigos de terminal VT-100)
@@ -41,10 +43,9 @@ public class App {
 
     /**
      * Pausa para leitura de mensagens em console
-     * 
-     * @param teclado Scanner de leitura
+ 
      */
-    static void pausa(Scanner teclado) {
+    static void pausa() {
         System.out.println("\nEnter para continuar.");
         teclado.nextLine();
     }
@@ -54,24 +55,42 @@ public class App {
     /**
      * Menu para o restaurante
      * 
-     * @param teclado Scanner de leitura
+
      * @return Opção do usuário (int)
      */
-    public static int menu(Scanner teclado) {
+    public static int menu() {
 
         System.out.println();
         System.out.println();
 
-        System.out.println("XULAMBS PIZZA");
+        System.out.println("XULAMBS FOOOODS");
         System.out.println("==========================");
         System.out.println("1 - Novo pedido");
         System.out.println("2 - Incluir comida em pedido");
         System.out.println("3 - Detalhes do pedido");
         System.out.println("4 - Fechar pedido");
-        // System.out.println("5 - Relatório de todos os pedidos (arquivo
-        // 'pedidos.txt')");
-        // System.out.println("6 - Maior pedido de hoje");
+        
         System.out.println("0 - Sair");
+        System.out.print("Digite sua opção: ");
+        try {
+            int opcao = teclado.nextInt();
+            teclado.nextLine();
+            return opcao;
+        } catch (InputMismatchException ie) {
+            return -1;
+        }
+    }
+
+    public static int menuComida() {
+
+        System.out.println();
+        System.out.println();
+
+        System.out.println("XULAMBS FOOOODS");
+        System.out.println("==========================");
+        System.out.println("1 - Pizza");
+        System.out.println("2 - Sanduíche");
+        System.out.println("0 - Cancelar");
         System.out.print("Digite sua opção: ");
         try {
             int opcao = teclado.nextInt();
@@ -87,14 +106,10 @@ public class App {
      * Utilizado para perguntar, no momento da criação da pizza para inclusão,
      * quantos adicionais ela deve ter.
      * 
-     * @param novaPizza A pizza criada que receberá os adicionais.
-     * @param teclado   Scanner de leitura de teclado.
+     * @param novaComida A pizza criada que receberá os adicionais.
      */
-    private static void adicionarIngredientes(Pizza novaPizza, Scanner teclado) {
-        System.out.print("\n Deseja quantos adicionais (0-8)? ");
-        int adicionais = teclado.nextInt();
-        novaPizza.addIngredientes(adicionais);
-        teclado.nextLine();
+    private static void adicionarIngredientes(Comida novaComida) {
+       
     }
 
     /**
@@ -103,47 +118,70 @@ public class App {
      * 
      * @param pedido  O pedido atual.
      * @param pizza   A pizza que será incluída no pedido.
-     * @param teclado Scanner de leitura de teclado.
      */
-    public static void adicionarPizzaAoPedido(Pedido pedido, Pizza pizza, Scanner teclado) {
+    public static void adicionarPizzaAoPedido(Pedido pedido, Pizza pizza) {
         if (pedido.addPizza(pizza)) {
-            adicionarIngredientes(pizza, teclado);
+            adicionarIngredientes(pizza);
             System.out.println("Pizza adicionada ao pedido.");
         } else
             System.out.println("Não foi possível adicionar a pizza: limite atingido ou pedido fechado.");
     }
 
+    /**
+     * Utilizado para conter a rotina de adicionar um sanduiche, chamando em seguida a
+     * inclusão de ingredientes.
+     * 
+     * @param pedido  O pedido atual.
+     * @param sanduiche   O sanduiche que será incluída no pedido.
+     */
+    public static void adicionarSanduicheAoPedido(Pedido pedido, Sanduiche sanduiche) {
+        if (pedido.addComida(sanduiche)) {
+            adicionarIngredientes(sanduiche);
+            System.out.println("Sanduíche adicionado ao pedido.");
+        } else
+            System.out.println("Não foi possível adicionar: limite atingido ou pedido fechado.");
+    }
+
+
     public static void main(String[] args) throws Exception {
         // testes feitos na classe de teste!!
         Scanner teclado = new Scanner(System.in);
-        String hoje = "05/09/2022"; // fictício, para não precisar pegar data do sistema
+        DateTimeFormatter formatoData = DateTimeFormatter.ofPattern("dd/mm/YYYY");
+        String hoje =  LocalDate.now().format(formatoData);  // fictício, para não precisar pegar data do sistema
         int opcao;
         Pedido novoPedido = null;
 
         do {
             limparTela();
-            opcao = menu(teclado);
+            opcao = menu();
             switch (opcao) {
                 case 1:
                     novoPedido = new Pedido(hoje);
                     System.out.println("Pedido criado.");
                     break;
                 case 2:
-                    if (novoPedido != null)
-                        adicionarPizzaAoPedido(novoPedido, new Pizza(), teclado);
+                    if (novoPedido != null){
+                        int comida = menuComida();
+                        switch(comida){
+                            case 1: adicionarPizzaAoPedido(novoPedido, new Pizza());
+                                break;
+                            case 2: adicionarSanduicheAoPedido(novoPedido, new Sanduiche());
+                                break; 
+                            default: System.out.println("Inclusão cancelada.");
+                        }
+                    }
                     else
                         System.out.println("Pedido ainda não foi aberto.");
-
                     break;
                 case 3:
                     limparTela();
-                    System.out.println(novoPedido.relatorio());
+                    System.out.println(novoPedido);
                     break;
                 case 4:
-                    novoPedido.fecharPedido();
+                    novoPedido.encerrar();
                     break;
             }
-            pausa(teclado);
+            pausa();
         } while (opcao != 0);
 
     }

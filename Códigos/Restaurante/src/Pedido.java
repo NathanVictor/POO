@@ -29,12 +29,12 @@ public class Pedido {
     /**
      * Constante para o máximo de pizzas no pedido.
      */
-    public static final int MAX_PIZZAS = 10;
+    public static final int MAX_COMIDAS = 10;
     private static int ultimoId=0;
     private int idPedido;
     private Data dataPedido;
-    private Pizza[] pizzas;
-    private int qtdPizzas;
+    private Comida[] comidas;
+    private int quantComidas;
     private boolean encerrado;
     
     /**
@@ -44,8 +44,8 @@ public class Pedido {
     private void init(Data dataPedido){
         this.idPedido = ++ultimoId;
         this.dataPedido = dataPedido; 
-        this.pizzas = new Pizza[MAX_PIZZAS];
-        this.qtdPizzas = 0;
+        this.comidas = new Pizza[MAX_COMIDAS];
+        this.quantComidas = 0;
         this.encerrado = false;
     }
 
@@ -69,8 +69,8 @@ public class Pedido {
      * Método privado para verificar as condições de limite de pizzas.
      * @return TRUE se o limite não foi atingido, FALSE caso contrário.
      */
-    private boolean verificarPizzas(){
-        return (this.qtdPizzas<MAX_PIZZAS);
+    private boolean verificarTamanho(){
+        return (this.quantComidas<MAX_COMIDAS);
     }
 
     /**
@@ -81,9 +81,25 @@ public class Pedido {
      */
     public boolean addPizza(Pizza novaPizza){
         boolean resposta = false;
-        if(verificarPizzas() && !encerrado){
-            this.pizzas[this.qtdPizzas] = novaPizza;
-            this.qtdPizzas++;
+        if(verificarTamanho() && !encerrado){
+            this.comidas[this.quantComidas] = novaPizza;
+            this.quantComidas++;
+            resposta = true;
+        }
+        return resposta;
+    }
+
+    /**
+     * Adiciona uma comida ao pedido, se o limite não foi atingido.
+     * O tamanho máximo atual é de 10 comidas por pedido.
+     * @param nova Comida a ser inserida no pedido. Precisa vir já criada.
+     * @return TRUE/FALSE conforme tenha sido adicionada no pedido.
+     */
+    public boolean addComida(Comida nova){
+        boolean resposta = false;
+        if(verificarTamanho() && !encerrado){
+            this.comidas[this.quantComidas] = nova;
+            this.quantComidas++;
             resposta = true;
         }
         return resposta;
@@ -93,10 +109,10 @@ public class Pedido {
      * Calcula o preço do pedido (a soma dos preços de suas pizzas).
      * @return Valor do preço atual do pedido.
      */
-    public double calcularValor(){
+    public double calcularPreco(){
         double valor=0d;
-        for (int i = 0; i < this.qtdPizzas; i++) {
-            valor+= this.pizzas[i].calcPreco();
+        for (int i = 0; i < this.quantComidas; i++) {
+            valor+= this.comidas[i].calcularPreco();
         }
         return valor;
     }
@@ -107,30 +123,34 @@ public class Pedido {
      * o pedido sem nenhuma pizza.
      * @return TRUE/FALSE conforme foi possível fechar o pedido.
      */
-    public boolean fecharPedido(){
+    public boolean encerrar(){
         boolean resposta = false;
-        if(this.qtdPizzas>0){
+        if(this.quantComidas>0){
             resposta = true;
-            for (int i = 0; i < this.qtdPizzas; i++) {
-                this.pizzas[i].fecharVenda();
+            for (int i = 0; i < this.quantComidas; i++) {
+                this.comidas[i].fecharVenda();
             }
             this.encerrado = true;
         }
         return resposta;
     }
 
+    public String criarNota(){
+        return this.toString();
+        
+    }
     /**
      * Cria a nota do pedido, contendo detalhes e preços de cada pizza e o preço final do pedido.
      * @return String contendo detalhes e preços de cada pizza e o preço final do pedido.
      */
-    public String relatorio(){
+    public String toString(){
        StringBuilder relatorioPedido = new StringBuilder("Pedido nº "+this.idPedido+"\n");
        relatorioPedido.append(this.dataPedido.dataFormatada());
        
-       for (int i = 0; i < this.qtdPizzas; i++) {
-            relatorioPedido.append("\n"+this.pizzas[i].gerarNota());
+       for (int i = 0; i < this.quantComidas; i++) {
+            relatorioPedido.append("\n"+this.comidas[i].toString());
        }
-       relatorioPedido.append("\n\n TOTAL DO PEDIDO: R$ "+this.calcularValor());
+       relatorioPedido.append("\n\n TOTAL DO PEDIDO: R$ "+this.calcularPreco());
        return relatorioPedido.toString();
     }
 
